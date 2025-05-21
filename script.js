@@ -6,6 +6,8 @@ var lastSource;
 var actionHistory = [];
 // Add a graph object to store the network
 var graph = {};
+// Add selected start node tracking
+var startNode = "node0"; // Default start node is node0
 
 function check() {
   if (document.documentElement.scrollTop != 0) {
@@ -34,7 +36,7 @@ function check() {
       container.appendChild(connection);
       var input = document.createElement("input")
       input.type = "number";
-      input.min = 0;
+      input.min = 0; // cost >= 0
       input.classList.add("cost")
       input.id = lastSource.id + "-" + source.id;
       input.placeholder = lastSource.id + " > " + source.id;
@@ -57,6 +59,31 @@ function check() {
     }
   }
 }
+
+// Handle right-click on nodes to set as starting point
+container.addEventListener("contextmenu", function(e) {
+  e.preventDefault();
+  var x = e.clientX;
+  var y = e.clientY;
+  var source = document.elementFromPoint(x, y);
+  
+  // Check if the right-clicked element is a node
+  if (source.classList.contains("node")) {
+    // Reset previous start node styling
+    const prevStartNode = document.querySelector(".start-node");
+    if (prevStartNode) {
+      prevStartNode.classList.remove("start-node");
+    }
+    
+    // Set this node as the start node
+    startNode = source.id;
+    source.classList.add("start-node");
+    
+    // Show feedback to the user
+    document.getElementById("result").innerHTML = `Selected node ${source.innerText} as the starting point`;
+  }
+});
+
 function updatePath(num) {
   document.getElementsByClassName("line")[num].firstChild.innerHTML = "<span>" + document.getElementsByTagName('input')[num].value + "</span>";
 }
@@ -121,6 +148,7 @@ function clearAll() {
   lastSource = null;
   actionHistory = [];
   graph = {};
+  startNode = "node0"; // Reset startNode to default
   
   // Clear results
   document.getElementById("result").innerHTML = "";
@@ -403,7 +431,7 @@ function makeGraph() {
     const to = input.getAttribute("to");
     const cost = parseInt(input.value);
     
-    // Check for negative or null/undefined values
+    // Check for negative or null values; zero is allowed
     if (isNaN(cost) || cost < 0) {
       hasInvalidValues = true;
       input.style.borderColor = "red";
@@ -423,7 +451,7 @@ function makeGraph() {
   
   // If invalid values were found, show error message and return
   if (hasInvalidValues) {
-    document.getElementById("result").innerHTML = `<div style="color: red">Error: All connections must have positive values. Please fix the highlighted connections: ${invalidInputs.join(", ")}</div>`;
+    document.getElementById("result").innerHTML = `<div style="color: red">Error: All connections must have positive values greater than zero. Please fix the highlighted connections: ${invalidInputs.join(", ")}</div>`;
     return;
   }
   
@@ -433,12 +461,9 @@ function makeGraph() {
     return;
   }
   
-  // Start node is always node0 (the first node created)
-  const startNode = "node0";
-  
   // Check if start node exists
   if (!graph[startNode]) {
-    document.getElementById("result").innerHTML = "Start node (node0) not found in the graph.";
+    document.getElementById("result").innerHTML = `Start node (${startNode.replace('node', '')}) not found in the graph or has no connections.`;
     return;
   }
   
@@ -446,7 +471,7 @@ function makeGraph() {
   const result = dijkstra(graph, startNode);
   
   // Display results
-  let resultHTML = "<h2>Shortest Paths from Node 0:</h2><ul>";
+  let resultHTML = `<h2>Shortest Paths from Node ${startNode.replace('node', '')}:</h2><ul>`;
   
   for (const node in result.distances) {
     if (node !== startNode) {

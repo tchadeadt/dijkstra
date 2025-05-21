@@ -24,6 +24,10 @@ body {
 .node:first-of-type{
   border:2px solid green;
 }
+.start-node {
+  border: 3px solid blue !important;
+  background-color: #d4f0ff;
+}
 /* .node:last-of-type{
   border:2px solid red;
 } */
