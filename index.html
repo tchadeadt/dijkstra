@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dijkstra algorithm visualization</title>
+   <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Dijkstra Algorithm</h1>
+<div id="container" onclick="check()">
+</div>
+<p>Enter cost of each connection</p>
+<form action="" id="inputs"></form>
+<div class="button-container">
+    <button onclick="makeGraph()">Calculate Shortest Path</button>
+    <button onclick="clearLastStep()">Clear Last Step</button>
+    <button onclick="clearAll()">Clear All</button>
+</div>
+<p id="result"></p>
+<script src="script.js"></script>
+</body>
+</html>
